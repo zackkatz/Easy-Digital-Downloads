@@ -524,20 +524,18 @@ class EDD_API {
 		// Determine the kind of query
 		$this->set_query_mode();
 
-		// Check for a valid user and set errors if necessary
-		$this->validate_request();
-
-		// Only proceed if no errors have been noted
-		if( ! $this->is_valid_request ) {
-			return;
-		}
-
 		if( ! defined( 'EDD_DOING_API' ) ) {
 			define( 'EDD_DOING_API', true );
 		}
 
 		$data = array();
 		$this->routes = new $this->versions[ $this->get_queried_version() ];
+		$this->routes->validate_request();
+
+		// Only proceed if no errors have been noted
+		if( ! $this->routes->is_valid_request ) {
+			return;
+		}
 
 		switch( $this->endpoint ) :
 
