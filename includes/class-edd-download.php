@@ -836,5 +836,5 @@ class EDD_Download {
 			}
 		}
 		return $support_check;
-
+	}
 }
