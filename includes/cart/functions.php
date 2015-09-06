@@ -362,9 +362,10 @@ function edd_set_cart_item_quantity( $download_id = 0, $quantity = 1, $options =
 function edd_get_cart_item_quantity( $download_id = 0, $options = array() ) {
 	$cart     = edd_get_cart_contents();
 	$key      = edd_get_item_position_in_cart( $download_id, $options );
-	$quantity = isset( $cart[ $key ]['quantity'] ) && edd_item_quantities_enabled() ? $cart[ $key ]['quantity'] : 1;
-	if( $quantity < 1 )
+	$quantity = isset( $cart[ $key ]['quantity'] ) && edd_download_supports( $download_id, 'quantities' ) ? $cart[ $key ]['quantity'] : 1;
+	if( $quantity < 1 ) {
 		$quantity = 1;
+	}
 	return apply_filters( 'edd_get_cart_item_quantity', $quantity, $download_id, $options );
 }
 
