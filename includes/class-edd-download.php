@@ -104,6 +104,16 @@ class EDD_Download {
 	private $button_behavior;
 
 	/**
+	 * Default download support options
+	 *
+	 * @since 2.5
+	 */
+	private $supports = array(
+		'quantities' => false,
+		'taxes'      => true,
+	);
+
+	/**
 	 * Declare the default properities in WP_Post as we can't extend it
 	 * Anything we've delcared above has been removed.
 	 */
@@ -799,5 +809,32 @@ class EDD_Download {
 
 		return false;
 	}
+
+	/**
+	 * Determine if the download supports a feature
+	 * 
+	 * @since  2.5
+	 * @param  string $feature   The feature being checked for support
+	 * @return bool              Whether the download supports the feature.
+	 */
+	public function supports( $features = '' ) {
+
+		$supports = apply_filters( 'edd_download_supports', $this->supports, $this->ID );
+
+		if( empty( $features ) ) {
+			return false;
+		}
+
+		if ( ! is_array( $features ) ) {
+			return ! empty( $supports[ $features ] ) && $supports[ $features ];
+		}
+
+		$support_check = true;
+		foreach ( $features as $feature ) {
+			if ( empty( $supports[ $feature ] ) || ! $supports[ $feature ] ) {
+				$support_check = false;
+			}
+		}
+		return $support_check;
 
 }
