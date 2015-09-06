@@ -817,24 +817,12 @@ class EDD_Download {
 	 * @param  string $feature   The feature being checked for support
 	 * @return bool              Whether the download supports the feature.
 	 */
-	public function supports( $features = '' ) {
+	public function supports( $feature = '' ) {
 
-		$supports = apply_filters( 'edd_download_supports', $this->supports, $this->ID );
+		$ret = false;
 
-		if( empty( $features ) ) {
-			return false;
-		}
+		$ret = ! empty( $feature ) && in_array( $feature, $this->supports );
 
-		if ( ! is_array( $features ) ) {
-			return ! empty( $supports[ $features ] ) && $supports[ $features ];
-		}
-
-		$support_check = true;
-		foreach ( $features as $feature ) {
-			if ( empty( $supports[ $feature ] ) || ! $supports[ $feature ] ) {
-				$support_check = false;
-			}
-		}
-		return $support_check;
+		return apply_filters( 'edd_download_supports', $ret, $feature, $this->ID );
 	}
 }

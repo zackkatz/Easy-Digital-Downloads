@@ -931,8 +931,7 @@ add_filter( 'post_class', 'edd_add_download_post_classes', 20, 3 );
 /**
  * Checks if download supports specific feature in the loop
  *
- * @since 2.4
- * @author Daniel Iser
+ * @since 2.5
  * @param string $feature The feature being checked.
  * @return bool $supports True if the product supports the feature, false if the product does not or no ID is passed
  */
