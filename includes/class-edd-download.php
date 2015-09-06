@@ -108,10 +108,7 @@ class EDD_Download {
 	 *
 	 * @since 2.5
 	 */
-	private $supports = array(
-		'quantities' => false,
-		'taxes'      => true,
-	);
+	private $_supports;
 
 	/**
 	 * Declare the default properities in WP_Post as we can't extend it
@@ -185,6 +182,11 @@ class EDD_Download {
 			}
 
 		}
+
+		$this->_supports = array(
+			'quantities' => edd_item_quantities_enabled(),
+			'taxes'      => edd_use_taxes(),
+		);
 
 		return true;
 
@@ -819,10 +821,8 @@ class EDD_Download {
 	 */
 	public function supports( $feature = '' ) {
 
-		$ret = false;
+		$ret = ! empty( $feature ) && in_array( $feature, $this->_supports );
 
-		$ret = ! empty( $feature ) && in_array( $feature, $this->supports );
-
-		return apply_filters( 'edd_download_supports', $ret, $feature, $this->ID );
+		return apply_filters( 'edd_does_download_support', $ret, $feature, $this->ID );
 	}
 }
