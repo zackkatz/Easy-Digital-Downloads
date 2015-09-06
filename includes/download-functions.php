@@ -1162,4 +1162,23 @@ function edd_validate_url_token( $url = '' ) {
 	}
 
 	return apply_filters( 'edd_validate_url_token', $ret, $url, $query_args );
+
+}
+
+/**
+ * Checks whether or not a download supports a specific feature
+ *
+ * @since 2.5
+ * @param int $download_id ID number of the download to check
+ * @param string $feature The feature being checked.
+ * @return bool $supports True if the product supports the feature, false if the product does not or no ID is passed
+ */
+function edd_download_supports( $download_id = 0, $feature = '' ) {
+
+	if( empty( $download_id ) ) {
+		return false;
+	}
+
+	$download = new EDD_Download( $download_id );
+	return $download->supports( $feature );
 }
