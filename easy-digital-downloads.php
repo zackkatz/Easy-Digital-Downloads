@@ -191,12 +191,14 @@ final class Easy_Digital_Downloads {
 
 		// Plugin Folder Path.
 		if ( ! defined( 'EDD_PLUGIN_DIR' ) ) {
-			define( 'EDD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+			//define( 'EDD_PLUGIN_DIR', '/' . plugin_basename( dirname( __FILE__ ) ) . '/' );
+			define( 'EDD_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/' );
 		}
 
 		// Plugin Folder URL.
 		if ( ! defined( 'EDD_PLUGIN_URL' ) ) {
-			define( 'EDD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+			//define( 'EDD_PLUGIN_URL', plugin_dir_url( EDD_PLUGIN_DIR . plugin_basename( dirname( __FILE__ ) ) ) . '/' );
+			define( 'EDD_PLUGIN_URL', plugin_dir_url( EDD_PLUGIN_DIR )  . basename( dirname( __FILE__ ) ) . '/' );
 		}
 
 		// Plugin Root File.
@@ -416,8 +418,8 @@ endif; // End if class_exists check.
 
 
 /**
- * The main function for that returns Easy_Digital_Downloads 
- * 
+ * The main function for that returns Easy_Digital_Downloads
+ *
  * The main function responsible for returning the one true Easy_Digital_Downloads
  * Instance to functions everywhere.
  *

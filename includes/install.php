@@ -40,8 +40,7 @@ function edd_install() {
 	// Setup the Download Taxonomies
 	edd_setup_download_taxonomies();
 
-	// Clear the permalinks
-	flush_rewrite_rules( false );
+	add_action( 'plugins_loaded', 'edd_flush_rewrite_rules' );
 
 	// Add Upgraded From Option
 	$current_version = get_option( 'edd_version' );
@@ -126,7 +125,8 @@ function edd_install() {
 
 	}
 
-	update_option( 'edd_settings', array_merge( $edd_options, $options ) );
+	$edd_options = array_merge( $edd_options, $options );
+	update_option( 'edd_settings', $edd_options );
 	update_option( 'edd_version', EDD_VERSION );
 
 	// Create wp-content/uploads/edd/ folder and the .htaccess file
@@ -174,6 +174,11 @@ function edd_install() {
 	set_transient( '_edd_activation_redirect', true, 30 );
 }
 register_activation_hook( EDD_PLUGIN_FILE, 'edd_install' );
+
+function edd_flush_rewrite_rules() {
+	// Clear the permalinks
+	flush_rewrite_rules( false );
+}
 
 /**
  * Post-installation
