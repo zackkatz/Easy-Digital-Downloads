@@ -1609,7 +1609,7 @@ final class EDD_Payment {
 	 * @return string              The currency for the payment
 	 */
 	private function setup_currency() {
-		$currency = isset( $this->payment_meta['currency'] ) ? $this->payment_meta['currency'] : edd_get_currency();
+		$currency = ! empty( $this->payment_meta['currency'] ) ? $this->payment_meta['currency'] : edd_get_currency();
 		return $currency;
 	}
 
