@@ -783,7 +783,6 @@ function edd_process_profile_editor_updates( $data ) {
 		'user_email'   => $email
 	);
 
-
 	$address = array(
 		'line1'    => $line1,
 		'line2'    => $line2,
@@ -816,6 +815,8 @@ function edd_process_profile_editor_updates( $data ) {
 			edd_set_error( 'email_exists', __( 'The email you entered belongs to another user. Please use another.', 'easy-digital-downloads' ) );
 		}
 	}
+
+
 
 	// Check for errors
 	$errors = edd_get_errors();
