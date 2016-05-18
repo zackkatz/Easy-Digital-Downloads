@@ -826,8 +826,6 @@ function edd_render_dowwn_tax_options( $post_id = 0 ) {
 add_action( 'edd_meta_box_settings_fields', 'edd_render_dowwn_tax_options', 30 );
 
 /**
-<<<<<<< HEAD
-=======
  * Add shortcode to settings meta box
  *
  * @since 2.5
@@ -854,7 +852,6 @@ function edd_render_meta_box_shortcode() {
 add_action( 'edd_meta_box_settings_fields', 'edd_render_meta_box_shortcode', 35 );
 
 /**
->>>>>>> release/2.6
  * Render Accounting Options
  *
  * @since 1.6
