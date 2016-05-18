@@ -25,23 +25,30 @@ function edd_setup_edd_post_types() {
 	$rewrite  = defined( 'EDD_DISABLE_REWRITE' ) && EDD_DISABLE_REWRITE ? false : array('slug' => $slug, 'with_front' => false);
 
 	$download_labels =  apply_filters( 'edd_download_labels', array(
-		'name'               => _x( '%2$s', 'download post type name', 'easy-digital-downloads' ),
-		'singular_name'      => _x( '%1$s', 'singular download post type name', 'easy-digital-downloads' ),
-		'add_new'            => __( 'Add New', 'easy-digital-downloads' ),
-		'add_new_item'       => __( 'Add New %1$s', 'easy-digital-downloads' ),
-		'edit_item'          => __( 'Edit %1$s', 'easy-digital-downloads' ),
-		'new_item'           => __( 'New %1$s', 'easy-digital-downloads' ),
-		'all_items'          => __( 'All %2$s', 'easy-digital-downloads' ),
-		'view_item'          => __( 'View %1$s', 'easy-digital-downloads' ),
-		'search_items'       => __( 'Search %2$s', 'easy-digital-downloads' ),
-		'not_found'          => __( 'No %2$s found', 'easy-digital-downloads' ),
-		'not_found_in_trash' => __( 'No %2$s found in Trash', 'easy-digital-downloads' ),
-		'parent_item_colon'  => '',
-		'menu_name'          => _x( '%2$s', 'download post type menu name', 'easy-digital-downloads' )
+		'name'                  => _x( '%2$s', 'download post type name', 'easy-digital-downloads' ),
+		'singular_name'         => _x( '%1$s', 'singular download post type name', 'easy-digital-downloads' ),
+		'add_new'               => __( 'Add New', 'easy-digital-downloads' ),
+		'add_new_item'          => __( 'Add New %1$s', 'easy-digital-downloads' ),
+		'edit_item'             => __( 'Edit %1$s', 'easy-digital-downloads' ),
+		'new_item'              => __( 'New %1$s', 'easy-digital-downloads' ),
+		'all_items'             => __( 'All %2$s', 'easy-digital-downloads' ),
+		'view_item'             => __( 'View %1$s', 'easy-digital-downloads' ),
+		'search_items'          => __( 'Search %2$s', 'easy-digital-downloads' ),
+		'not_found'             => __( 'No %2$s found', 'easy-digital-downloads' ),
+		'not_found_in_trash'    => __( 'No %2$s found in Trash', 'easy-digital-downloads' ),
+		'parent_item_colon'     => '',
+		'menu_name'             => _x( '%2$s', 'download post type menu name', 'easy-digital-downloads' ),
+		'featured_image'        => __( '%1$s Image', 'easy-digital-downloads' ),
+		'set_featured_image'    => __( 'Set %1$s Image', 'easy-digital-downloads' ),
+		'remove_featured_image' => __( 'Remove %1$s Image', 'easy-digital-downloads' ),
+		'use_featured_image'    => __( 'Use as %1$s Image', 'easy-digital-downloads' ),
+		'filter_items_list'     => __( 'Filter %2$s list', 'easy-digital-downloads' ),
+		'items_list_navigation' => __( '%2$s list navigation', 'easy-digital-downloads' ),
+		'items_list'            => __( '%2$s list', 'easy-digital-downloads' ),
 	) );
 
 	foreach ( $download_labels as $key => $value ) {
-	   $download_labels[ $key ] = sprintf( $value, edd_get_label_singular(), edd_get_label_plural() );
+		$download_labels[ $key ] = sprintf( $value, edd_get_label_singular(), edd_get_label_plural() );
 	}
 
 	$download_args = array(
@@ -199,16 +206,16 @@ function edd_setup_download_taxonomies() {
 
 	/** Categories */
 	$category_labels = array(
-		'name'              => _x( 'Categories', 'taxonomy general name', 'easy-digital-downloads' ),
-		'singular_name'     => _x( 'Category', 'taxonomy singular name', 'easy-digital-downloads' ),
-		'search_items'      => __( 'Search Categories', 'easy-digital-downloads' ),
-		'all_items'         => __( 'All Categories', 'easy-digital-downloads' ),
-		'parent_item'       => __( 'Parent Category', 'easy-digital-downloads' ),
-		'parent_item_colon' => __( 'Parent Category:', 'easy-digital-downloads' ),
-		'edit_item'         => __( 'Edit Category', 'easy-digital-downloads' ),
-		'update_item'       => __( 'Update Category', 'easy-digital-downloads' ),
+		'name'              => sprintf( _x( '%s Categories', 'taxonomy general name', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'singular_name'     => sprintf( _x( '%s Category', 'taxonomy singular name', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'search_items'      => sprintf( __( 'Search %s Categories', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'all_items'         => sprintf( __( 'All %s Categories', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'parent_item'       => sprintf( __( 'Parent %s Category', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'parent_item_colon' => sprintf( __( 'Parent %s Category:', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'edit_item'         => sprintf( __( 'Edit %s Category', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'update_item'       => sprintf( __( 'Update %s Category', 'easy-digital-downloads' ), edd_get_label_singular() ),
 		'add_new_item'      => sprintf( __( 'Add New %s Category', 'easy-digital-downloads' ), edd_get_label_singular() ),
-		'new_item_name'     => __( 'New Category Name', 'easy-digital-downloads' ),
+		'new_item_name'     => sprintf( __( 'New %s Category Name', 'easy-digital-downloads' ), edd_get_label_singular() ),
 		'menu_name'         => __( 'Categories', 'easy-digital-downloads' ),
 	);
 
@@ -226,16 +233,16 @@ function edd_setup_download_taxonomies() {
 
 	/** Tags */
 	$tag_labels = array(
-		'name'                  => _x( 'Tags', 'taxonomy general name', 'easy-digital-downloads' ),
-		'singular_name'         => _x( 'Tag', 'taxonomy singular name', 'easy-digital-downloads' ),
-		'search_items'          => __( 'Search Tags', 'easy-digital-downloads' ),
-		'all_items'             => __( 'All Tags', 'easy-digital-downloads' ),
-		'parent_item'           => __( 'Parent Tag', 'easy-digital-downloads' ),
-		'parent_item_colon'     => __( 'Parent Tag:', 'easy-digital-downloads' ),
-		'edit_item'             => __( 'Edit Tag', 'easy-digital-downloads' ),
-		'update_item'           => __( 'Update Tag', 'easy-digital-downloads' ),
-		'add_new_item'          => __( 'Add New Tag', 'easy-digital-downloads' ),
-		'new_item_name'         => __( 'New Tag Name', 'easy-digital-downloads' ),
+		'name'                  => sprintf( _x( '%s Tags', 'taxonomy general name', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'singular_name'         => sprintf( _x( '%s Tag', 'taxonomy singular name', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'search_items'          => sprintf( __( 'Search %s Tags', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'all_items'             => sprintf( __( 'All %s Tags', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'parent_item'           => sprintf( __( 'Parent %s Tag', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'parent_item_colon'     => sprintf( __( 'Parent %s Tag:', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'edit_item'             => sprintf( __( 'Edit %s Tag', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'update_item'           => sprintf( __( 'Update %s Tag', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'add_new_item'          => sprintf( __( 'Add New %s Tag', 'easy-digital-downloads' ), edd_get_label_singular() ),
+		'new_item_name'         => sprintf( __( 'New %s Tag Name', 'easy-digital-downloads' ), edd_get_label_singular() ),
 		'menu_name'             => __( 'Tags', 'easy-digital-downloads' ),
 		'choose_from_most_used' => sprintf( __( 'Choose from most used %s tags', 'easy-digital-downloads' ), edd_get_label_singular() ),
 	);
@@ -399,3 +406,20 @@ function edd_bulk_updated_messages( $bulk_messages, $bulk_counts ) {
 	return $bulk_messages;
 }
 add_filter( 'bulk_post_updated_messages', 'edd_bulk_updated_messages', 10, 2 );
+
+/**
+ * Add row actions for the downloads custom post type
+ *
+ * @since 2.5
+ * @param  array $actions
+ * @param  WP_Post $post
+ * @return array
+ */
+function  edd_download_row_actions( $actions, $post ) {
+	if ( 'download' === $post->post_type ) {
+		return array_merge( array( 'id' => 'ID: ' . $post->ID ), $actions );
+	}
+
+	return $actions;
+}
+add_filter( 'post_row_actions', 'edd_download_row_actions', 2, 100 );

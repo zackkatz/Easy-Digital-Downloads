@@ -166,52 +166,6 @@ function edd_download_meta_box_save( $post_id, $post ) {
 add_action( 'save_post', 'edd_download_meta_box_save', 10, 2 );
 
 /**
- * Sanitize the price before it is saved
- *
- * This is mostly for ensuring commas aren't saved in the price
- *
- * @since 1.3.2
- * @param string $price Price before sanitization
- * @return string $price Sanitized price
- */
-function edd_sanitize_price_save( $price ) {
-	return edd_sanitize_amount( $price );
-}
-add_filter( 'edd_metabox_save_edd_price', 'edd_sanitize_price_save' );
-
-/**
- * Sanitize the variable prices
- *
- * Ensures prices are correctly mapped to an array starting with an index of 0
- *
- * @since 1.4.2
- * @param array $prices Variable prices
- * @return array $prices Array of the remapped variable prices
- */
-function edd_sanitize_variable_prices_save( $prices ) {
-
-	foreach( $prices as $id => $price ) {
-
-		if( empty( $price['amount'] ) && empty( $price['name'] ) ) {
-
-			unset( $prices[ $id ] );
-			continue;
-
-		} elseif( empty( $price['amount'] ) ) {
-
-			$price['amount'] = 0;
-
-		}
-
-		$prices[ $id ]['amount'] = edd_sanitize_amount( $price['amount'] );
-
-	}
-
-	return $prices;
-}
-add_filter( 'edd_metabox_save_edd_variable_prices', 'edd_sanitize_variable_prices_save' );
-
-/**
  * Sanitize bundled products on save
  *
  * Ensures a user doesn't try and include a product's ID in the products bundled with that product
@@ -234,35 +188,6 @@ function edd_sanitize_bundled_products_save( $products = array() ) {
 }
 add_filter( 'edd_metabox_save__edd_bundled_products', 'edd_sanitize_bundled_products_save' );
 
-
-/**
- * Sanitize the file downloads
- *
- * Ensures files are correctly mapped to an array starting with an index of 0
- *
- * @since 1.5.1
- * @param array $files Array of all the file downloads
- * @return array $files Array of the remapped file downloads
- */
-function edd_sanitize_files_save( $files ) {
-
-	// Clean up filenames to ensure whitespaces are stripped
-	foreach( $files as $id => $file ) {
-
-		if( ! empty( $files[ $id ]['file'] ) ) {
-			$files[ $id ]['file'] = trim( $file['file'] );
-		}
-
-		if( ! empty( $files[ $id ]['name'] ) ) {
-			$files[ $id ]['name'] = trim( $file['name'] );
-		}
-	}
-
-	// Make sure all files are rekeyed starting at 0
-	return array_values( $files );
-}
-add_filter( 'edd_metabox_save_edd_download_files', 'edd_sanitize_files_save' );
-
 /**
  * Don't save blank rows.
  *
@@ -282,9 +207,6 @@ function edd_metabox_save_check_blank_rows( $new ) {
 
 	return $new;
 }
-add_filter( 'edd_metabox_save_edd_variable_prices', 'edd_metabox_save_check_blank_rows' );
-add_filter( 'edd_metabox_save_edd_download_files', 'edd_metabox_save_check_blank_rows' );
-
 
 /** Download Configuration *****************************************************************/
 
@@ -450,7 +372,7 @@ function edd_render_price_field( $post_id ) {
 
 					<tr>
 						<td class="submit" colspan="4" style="float: none; clear:both; background:#fff;">
-							<a class="button-secondary edd_add_repeatable" style="margin: 6px 0;"><?php _e( 'Add New Price', 'easy-digital-downloads' ); ?></a>
+							<button class="button-secondary edd_add_repeatable" style="margin: 6px 0;"><?php _e( 'Add New Price', 'easy-digital-downloads' ); ?></button>
 						</td>
 					</tr>
 				</tbody>
@@ -503,7 +425,7 @@ function edd_render_price_row( $key, $args = array(), $post_id, $index ) {
 			$price_args = array(
 				'name'  => 'edd_variable_prices[' . $key . '][amount]',
 				'value' => $args['amount'],
-				'placeholder' => '9.99',
+				'placeholder' => edd_format_amount( 9.99 ),
 				'class' => 'edd-price-field'
 			);
 		?>
@@ -517,7 +439,12 @@ function edd_render_price_row( $key, $args = array(), $post_id, $index ) {
 		<?php endif; ?>
 	</td>
 	<td class="edd_repeatable_default_wrapper">
-		<input type="radio" <?php checked( $default_price_id, $key, true ); ?> class="edd_repeatable_default_input" name="_edd_default_price_id" value="<?php echo $key; ?>" />
+		<label class="edd-default-price">
+			<input type="radio" <?php checked( $default_price_id, $key, true ); ?> class="edd_repeatable_default_input" name="_edd_default_price_id" value="<?php echo $key; ?>" />
+			<span class="screen-reader-text"><?php printf( __( 'Set ID %s as default price', 'easy-digital-downloads' ), $key ); ?></span>
+		</label>
+	</td>
+
 	<td>
 		<span class="edd_price_id"><?php echo $key; ?></span>
 	</td>
@@ -525,7 +452,7 @@ function edd_render_price_row( $key, $args = array(), $post_id, $index ) {
 	<?php do_action( 'edd_download_price_table_row', $post_id, $key, $args ); ?>
 
 	<td>
-		<a href="#" class="edd_remove_repeatable" data-type="price" style="background: url(<?php echo admin_url('/images/xit.gif'); ?>) no-repeat;">&times;</a>
+		<button class="edd_remove_repeatable" data-type="price" style="background: url(<?php echo admin_url('/images/xit.gif'); ?>) no-repeat;"><span class="screen-reader-text"><?php printf( __( 'Remove price option %s', 'easy-digital-downloads' ), $key ); ?></span><span aria-hidden="true">&times;</span></button>
 	</td>
 <?php
 }
@@ -574,28 +501,70 @@ function edd_render_products_field( $post_id ) {
 ?>
 	<div id="edd_products"<?php echo $display; ?>>
 		<div id="edd_file_fields" class="edd_meta_table_wrap">
-			<table class="widefat" width="100%" cellpadding="0" cellspacing="0">
+			<table class="widefat edd_repeatable_table" width="100%" cellpadding="0" cellspacing="0">
 				<thead>
 					<tr>
+						<th style="width: 20px"></th>
 						<th><?php printf( __( 'Bundled %s:', 'easy-digital-downloads' ), edd_get_label_plural() ); ?></th>
+						<th></th>
 						<?php do_action( 'edd_download_products_table_head', $post_id ); ?>
 					</tr>
 				</thead>
 				<tbody>
-					<tr class="edd_repeatable_product_wrapper">
+				<?php if ( $products ) : ?>
+					<?php $index = 1; ?>
+					<?php foreach ( $products as $key => $product ) : ?>
+						<tr class="edd_repeatable_product_wrapper edd_repeatable_row" data-key="<?php echo esc_attr( $key ); ?>">
+							<td>
+								<span class="edd_draghandle"></span>
+								<input type="hidden" name="edd_bundled_products[<?php echo $key; ?>][index]" class="edd_repeatable_index" value="<?php echo $index; ?>"/>
+							</td>
+							<td>
+								<?php
+								echo EDD()->html->product_dropdown( array(
+									'name'     => '_edd_bundled_products[]',
+									'id'       => 'edd_bundled_products_' . $key,
+									'selected' => $product,
+									'multiple' => false,
+									'chosen'   => true,
+									'bundles'  => false,
+								) );
+								?>
+							</td>
+							<td>
+								<button class="edd_remove_repeatable" data-type="file" style="background: url(<?php echo admin_url('/images/xit.gif'); ?>) no-repeat;"><span class="screen-reader-text"><?php printf( __( 'Remove bundle option %s', 'easy-digital-downloads' ), $key ); ?></span><span aria-hidden="true">&times;</span></button>
+							</td>
+							<?php do_action( 'edd_download_products_table_row', $post_id ); ?>
+						</tr>
+						<?php $index++; ?>
+					<?php endforeach; ?>
+				<?php else: ?>
+					<tr class="edd_repeatable_product_wrapper edd_repeatable_row" data-key="1">
+						<td>
+							<span class="edd_draghandle"></span>
+							<input type="hidden" name="edd_bundled_products[1][index]" class="edd_repeatable_index" value="1"/>
+						</td>
 						<td>
 							<?php
 							echo EDD()->html->product_dropdown( array(
 								'name'     => '_edd_bundled_products[]',
-								'id'       => 'edd_bundled_products',
-								'selected' => $products,
-								'multiple' => true,
+								'id'       => 'edd_bundled_products_1',
+								'multiple' => false,
 								'chosen'   => true,
 								'bundles'  => false
 							) );
 							?>
 						</td>
+						<td>
+							<button class="edd_remove_repeatable" data-type="file" style="background: url(<?php echo admin_url('/images/xit.gif'); ?>) no-repeat;"><span class="screen-reader-text"><?php echo __( 'Remove bundle option', 'easy-digital-downloads' ); ?></span><span aria-hidden="true">&times;</span></button>
+						</td>
 						<?php do_action( 'edd_download_products_table_row', $post_id ); ?>
+					</tr>
+				<?php endif; ?>
+					<tr>
+						<td class="submit" colspan="3" style="float: none; clear:both; background: #fff;">
+							<button class="button-secondary edd_add_repeatable" style="margin: 6px 0 10px;"><?php _e( 'Add New File', 'easy-digital-downloads' ); ?></button>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -623,7 +592,6 @@ function edd_render_files_field( $post_id = 0 ) {
 	$variable_pricing = edd_has_variable_prices( $post_id );
 	$display          = $type == 'bundle' ? ' style="display:none;"' : '';
 	$variable_display = $variable_pricing ? '' : 'display:none;';
-
 ?>
 	<div id="edd_download_files"<?php echo $display; ?>>
 		<p>
@@ -636,12 +604,11 @@ function edd_render_files_field( $post_id = 0 ) {
 			<table class="widefat edd_repeatable_table" width="100%" cellpadding="0" cellspacing="0">
 				<thead>
 					<tr>
-						<!--drag handle column. Disabled until we can work out a way to solve the issues raised here: https://github.com/easydigitaldownloads/Easy-Digital-Downloads/issues/1066
 						<th style="width: 20px"></th>
-						-->
 						<th style="width: 20%"><?php _e( 'File Name', 'easy-digital-downloads' ); ?></th>
 						<th><?php _e( 'File URL', 'easy-digital-downloads' ); ?></th>
 						<th class="pricing" style="width: 20%; <?php echo $variable_display; ?>"><?php _e( 'Price Assignment', 'easy-digital-downloads' ); ?></th>
+						<th style="width: 15px"><?php _e( 'ID', 'easy-digital-downloads' ); ?></th>
 						<?php do_action( 'edd_download_file_table_head', $post_id ); ?>
 						<th style="width: 2%"></th>
 					</tr>
@@ -650,6 +617,7 @@ function edd_render_files_field( $post_id = 0 ) {
 				<?php
 					if ( ! empty( $files ) && is_array( $files ) ) :
 						foreach ( $files as $key => $value ) :
+							$index         = isset( $value['index'] )         ? $value['index']         : $key;
 							$name          = isset( $value['name'] )          ? $value['name']          : '';
 							$file          = isset( $value['file'] )          ? $value['file']          : '';
 							$condition     = isset( $value['condition'] )     ? $value['condition']     : false;
@@ -658,19 +626,19 @@ function edd_render_files_field( $post_id = 0 ) {
 							$args = apply_filters( 'edd_file_row_args', compact( 'name', 'file', 'condition', 'attachment_id' ), $value );
 				?>
 						<tr class="edd_repeatable_upload_wrapper edd_repeatable_row" data-key="<?php echo esc_attr( $key ); ?>">
-							<?php do_action( 'edd_render_file_row', $key, $args, $post_id ); ?>
+							<?php do_action( 'edd_render_file_row', $key, $args, $post_id, $index ); ?>
 						</tr>
 				<?php
 						endforeach;
 					else :
 				?>
 					<tr class="edd_repeatable_upload_wrapper edd_repeatable_row">
-						<?php do_action( 'edd_render_file_row', 0, array(), $post_id ); ?>
+						<?php do_action( 'edd_render_file_row', 1, array(), $post_id, 0 ); ?>
 					</tr>
 				<?php endif; ?>
 					<tr>
 						<td class="submit" colspan="4" style="float: none; clear:both; background: #fff;">
-							<a class="button-secondary edd_add_repeatable" style="margin: 6px 0 10px;"><?php _e( 'Add New File', 'easy-digital-downloads' ); ?></a>
+							<button class="button-secondary edd_add_repeatable" style="margin: 6px 0 10px;"><?php _e( 'Add New File', 'easy-digital-downloads' ); ?></button>
 						</td>
 					</tr>
 				</tbody>
@@ -694,7 +662,7 @@ add_action( 'edd_meta_box_files_fields', 'edd_render_files_field', 20 );
  * @param int $post_id Download (Post) ID
  * @return void
  */
-function edd_render_file_row( $key = '', $args = array(), $post_id ) {
+function edd_render_file_row( $key = '', $args = array(), $post_id, $index ) {
 	$defaults = array(
 		'name'          => null,
 		'file'          => null,
@@ -710,12 +678,10 @@ function edd_render_file_row( $key = '', $args = array(), $post_id ) {
 	$variable_display = $variable_pricing ? '' : ' style="display:none;"';
 ?>
 
-	<!--
-	Disabled until we can work out a way to solve the issues raised here: https://github.com/easydigitaldownloads/Easy-Digital-Downloads/issues/1066
 	<td>
 		<span class="edd_draghandle"></span>
+		<input type="hidden" name="edd_download_files[<?php echo $key; ?>][index]" class="edd_repeatable_index" value="<?php echo $index; ?>"/>
 	</td>
-	-->
 	<td>
 		<input type="hidden" name="edd_download_files[<?php echo absint( $key ); ?>][attachment_id]" class="edd_repeatable_attachment_id_field" value="<?php echo esc_attr( absint( $args['attachment_id'] ) ); ?>"/>
 		<?php echo EDD()->html->text( array(
@@ -761,14 +727,18 @@ function edd_render_file_row( $key = '', $args = array(), $post_id ) {
 		?>
 	</td>
 
+	<td>
+		<span class="edd_file_id"><?php echo $key; ?></span>
+	</td>
+
 	<?php do_action( 'edd_download_file_table_row', $post_id, $key, $args ); ?>
 
 	<td>
-		<a href="#" class="edd_remove_repeatable" data-type="file" style="background: url(<?php echo admin_url('/images/xit.gif'); ?>) no-repeat;">&times;</a>
+		<button class="edd_remove_repeatable" data-type="file" style="background: url(<?php echo admin_url('/images/xit.gif'); ?>) no-repeat;"><span class="screen-reader-text"><?php printf( __( 'Remove file option %s', 'easy-digital-downloads' ), $key ); ?></span><span aria-hidden="true">&times;</span></button>
 	</td>
 <?php
 }
-add_action( 'edd_render_file_row', 'edd_render_file_row', 10, 3 );
+add_action( 'edd_render_file_row', 'edd_render_file_row', 10, 4 );
 
 /**
  * Alter the Add to post button in the media manager for downloads
@@ -805,8 +775,9 @@ add_filter( 'media_view_strings', 'edd_download_media_strings', 10, 1 );
  * @return void
  */
 function edd_render_download_limit_row( $post_id ) {
-    if( ! current_user_can( 'manage_shop_settings' ) )
-        return;
+	if( ! current_user_can( 'manage_shop_settings' ) ) {
+		return;
+	}
 
 	$edd_download_limit = edd_get_file_download_limit( $post_id );
 	$display = 'bundle' == edd_get_download_type( $post_id ) ? ' style="display: none;"' : '';
@@ -836,8 +807,9 @@ add_action( 'edd_meta_box_settings_fields', 'edd_render_download_limit_row', 20 
  * @return void
  */
 function edd_render_dowwn_tax_options( $post_id = 0 ) {
-    if( ! current_user_can( 'manage_shop_settings' ) || ! edd_use_taxes() )
-        return;
+	if( ! current_user_can( 'manage_shop_settings' ) || ! edd_use_taxes() ) {
+		return;
+	}
 
 	$exclusive = edd_download_is_tax_exclusive( $post_id );
 ?>
@@ -854,6 +826,35 @@ function edd_render_dowwn_tax_options( $post_id = 0 ) {
 add_action( 'edd_meta_box_settings_fields', 'edd_render_dowwn_tax_options', 30 );
 
 /**
+<<<<<<< HEAD
+=======
+ * Add shortcode to settings meta box
+ *
+ * @since 2.5
+ * @global array $post Contains all the download data
+ * @return void
+ */
+function edd_render_meta_box_shortcode() {
+	global $post;
+
+	if( $post->post_type != 'download' ) {
+		return;
+	}
+
+	$purchase_text = edd_get_option( 'add_to_cart_text', __( 'Purchase', 'easy-digital-downloads' ) );
+	$style         = edd_get_option( 'button_style', 'button' );
+	$color         = edd_get_option( 'checkout_color', 'blue' );
+	$color         = ( $color == 'inherit' ) ? '' : $color;
+	$shortcode     = '[purchase_link id="' . absint( $post->ID ) . '" text="' . esc_html( $purchase_text ) . '" style="' . $style . '" color="' . esc_attr( $color ) . '"]';
+?>
+	<p><strong><?php _e( 'Purchase Shortcode:', 'easy-digital-downloads' ); ?></strong></p>
+	<input type="text" id="edd-purchase-shortcode" class="widefat" readonly="readonly" value="<?php echo htmlentities( $shortcode ); ?>">
+<?php
+}
+add_action( 'edd_meta_box_settings_fields', 'edd_render_meta_box_shortcode', 35 );
+
+/**
+>>>>>>> release/2.6
  * Render Accounting Options
  *
  * @since 1.6
@@ -980,23 +981,20 @@ function edd_render_stats_meta_box() {
 	$sales    = edd_get_download_sales_stats( $post->ID );
 ?>
 
-	<p>
-		<strong class="label"><?php _e( 'Sales:', 'easy-digital-downloads' ); ?></strong>
-		<span><?php echo $sales; ?> &mdash; <a href="<?php echo admin_url( '/edit.php?page=edd-reports&view=sales&post_type=download&tab=logs&download=' . $post->ID ); ?>"><?php _e( 'View Sales Log', 'easy-digital-downloads' ); ?></a></span>
+	<p class="product-sales-stats">
+		<span class="label"><?php _e( 'Sales:', 'easy-digital-downloads' ); ?></span>
+		<span><a href="<?php echo admin_url( '/edit.php?page=edd-reports&view=sales&post_type=download&tab=logs&download=' . $post->ID ); ?>"><?php echo $sales; ?></a></span>
 	</p>
 
-	<p>
-		<strong class="label"><?php _e( 'Earnings:', 'easy-digital-downloads' ); ?></strong>
-		<span><?php echo edd_currency_filter( edd_format_amount( $earnings ) ); ?></span>
+	<p class="product-earnings-stats">
+		<span class="label"><?php _e( 'Earnings:', 'easy-digital-downloads' ); ?></span>
+		<span><a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-reports&view=downloads&download-id=' . $post->ID ); ?>"><?php echo edd_currency_filter( edd_format_amount( $earnings ) ); ?></a></span>
 	</p>
 
 	<hr />
 
 	<p class="file-download-log">
 		<span><a href="<?php echo admin_url( 'edit.php?page=edd-reports&view=file_downloads&post_type=download&tab=logs&download=' . $post->ID ); ?>"><?php _e( 'View File Download Log', 'easy-digital-downloads' ); ?></a></span><br/>
-	</p>
-	<p>
-		<span><a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-reports&view=downloads&download-id=' . $post->ID ); ?>"><?php _e( 'View Detailed Earnings Report', 'easy-digital-downloads' ); ?></a></span>
 	</p>
 <?php
 	do_action('edd_stats_meta_box');

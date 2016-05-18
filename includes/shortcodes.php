@@ -197,8 +197,15 @@ add_shortcode( 'download_cart', 'edd_cart_shortcode' );
  * @return string
  */
 function edd_login_form_shortcode( $atts, $content = null ) {
+	$redirect         = home_url();
+	$purchase_history = edd_get_option( 'purchase_history_page', 0 );
+
+	if ( ! empty( $purchase_history ) ) {
+		$redirect = get_permalink( $purchase_history );
+	}
+
 	extract( shortcode_atts( array(
-			'redirect' => '',
+			'redirect' => $redirect
 		), $atts, 'edd_login' )
 	);
 	return edd_login_form( $redirect );
@@ -217,8 +224,15 @@ add_shortcode( 'edd_login', 'edd_login_form_shortcode' );
  * @return string
  */
 function edd_register_form_shortcode( $atts, $content = null ) {
+	$redirect         = home_url();
+	$purchase_history = edd_get_option( 'purchase_history_page', 0 );
+
+	if ( ! empty( $purchase_history ) ) {
+		$redirect = get_permalink( $purchase_history );
+	}
+
 	extract( shortcode_atts( array(
-			'redirect' => '',
+			'redirect' => $redirect
 		), $atts, 'edd_register' )
 	);
 	return edd_register_form( $redirect );
@@ -338,7 +352,7 @@ function edd_downloads_query( $atts, $content = null ) {
 		'order'          => $atts['order']
 	);
 
-	if(  'true' === $atts['pagination']  ) {
+	if ( filter_var( $atts['pagination'], FILTER_VALIDATE_BOOLEAN ) || ( ! filter_var( $atts['pagination'], FILTER_VALIDATE_BOOLEAN ) && $atts[ 'number' ] ) ) {
 
 		$query['posts_per_page'] = (int) $atts['number'];
 
@@ -349,7 +363,9 @@ function edd_downloads_query( $atts, $content = null ) {
 		$query['nopaging'] = true;
 	}
 
-
+	if( 'random' == $atts['orderby'] ) {
+		$atts['pagination'] = false;
+	}
 
 	switch ( $atts['orderby'] ) {
 		case 'price':
@@ -370,6 +386,10 @@ function edd_downloads_query( $atts, $content = null ) {
 			$query['orderby'] = 'rand';
 		break;
 
+		case 'post__in':
+			$query['orderby'] = 'post__in';
+		break;
+
 		default:
 			$query['orderby'] = 'post_date';
 		break;
@@ -387,7 +407,10 @@ function edd_downloads_query( $atts, $content = null ) {
 
 			foreach( $tag_list as $tag ) {
 
-				if( is_numeric( $tag ) ) {
+				$t_id  = (int) $tag;
+				$is_id = is_int( $t_id ) && ! empty( $t_id );
+
+				if( $is_id ) {
 
 					$term_id = $tag;
 
@@ -417,7 +440,10 @@ function edd_downloads_query( $atts, $content = null ) {
 
 			foreach( $categories as $category ) {
 
-				if( is_numeric( $category ) ) {
+				$t_id  = (int) $category;
+				$is_id = is_int( $t_id ) && ! empty( $t_id );
+
+				if( $is_id ) {
 
 					$term_id = $category;
 
@@ -449,7 +475,10 @@ function edd_downloads_query( $atts, $content = null ) {
 
 			foreach( $categories as $category ) {
 
-				if( is_numeric( $category ) ) {
+				$t_id  = (int) $category;
+				$is_id = is_int( $t_id ) && ! empty( $t_id );
+
+				if( $is_id ) {
 
 					$term_id = $category;
 
@@ -480,8 +509,11 @@ function edd_downloads_query( $atts, $content = null ) {
 
 			foreach( $tag_list as $tag ) {
 
-				if( is_numeric( $tag ) ) {
+				$t_id  = (int) $tag;
+				$is_id = is_int( $t_id ) && ! empty( $t_id );
 
+				if( $is_id ) {
+				
 					$term_id = $tag;
 
 				} else {
@@ -521,25 +553,6 @@ function edd_downloads_query( $atts, $content = null ) {
 	else
 		$query['paged'] = 1;
 
-	switch( intval( $atts['columns'] ) ) :
-		case 0:
-			$column_width = 'inherit'; break;
-		case 1:
-			$column_width = '100%'; break;
-		case 2:
-			$column_width = '50%'; break;
-		case 3:
-			$column_width = '33%'; break;
-		case 4:
-			$column_width = '25%'; break;
-		case 5:
-			$column_width = '20%'; break;
-		case 6:
-			$column_width = '16.6%'; break;
-		default:
-			$column_width = '33%'; break;
-	endswitch;
-
 	// Allow the query to be manipulated by other plugins
 	$query = apply_filters( 'edd_downloads_query', $query, $atts );
 
@@ -551,7 +564,7 @@ function edd_downloads_query( $atts, $content = null ) {
 		<div class="edd_downloads_list <?php echo apply_filters( 'edd_downloads_list_wrapper_class', $wrapper_class, $atts ); ?>">
 			<?php while ( $downloads->have_posts() ) : $downloads->the_post(); ?>
 				<?php $schema = edd_add_schema_microdata() ? 'itemscope itemtype="http://schema.org/Product" ' : ''; ?>
-				<div <?php echo $schema; ?>class="<?php echo apply_filters( 'edd_download_class', 'edd_download', get_the_ID(), $atts, $i ); ?>" id="edd_download_<?php echo get_the_ID(); ?>" style="width: <?php echo $column_width; ?>; float: left;">
+				<div <?php echo $schema; ?>class="<?php echo apply_filters( 'edd_download_class', 'edd_download', get_the_ID(), $atts, $i ); ?>" id="edd_download_<?php echo get_the_ID(); ?>">
 					<div class="edd_download_inner">
 						<?php
 
@@ -593,6 +606,8 @@ function edd_downloads_query( $atts, $content = null ) {
 
 			<?php wp_reset_postdata(); ?>
 
+			<?php if ( filter_var( $atts['pagination'], FILTER_VALIDATE_BOOLEAN ) ) : ?>
+
 			<?php
 				$pagination = false;
 
@@ -622,6 +637,8 @@ function edd_downloads_query( $atts, $content = null ) {
 			</div>
 			<?php endif; ?>
 
+			<?php endif; ?>
+
 		</div>
 		<?php
 		$display = ob_get_clean();
@@ -629,7 +646,7 @@ function edd_downloads_query( $atts, $content = null ) {
 		$display = sprintf( _x( 'No %s found', 'download post type name', 'easy-digital-downloads' ), edd_get_label_plural() );
 	endif;
 
-	return apply_filters( 'downloads_shortcode', $display, $atts, $atts['buy_button'], $atts['columns'], $column_width, $downloads, $atts['excerpt'], $atts['full_content'], $atts['price'], $atts['thumbnails'], $query );
+	return apply_filters( 'downloads_shortcode', $display, $atts, $atts['buy_button'], $atts['columns'], '', $downloads, $atts['excerpt'], $atts['full_content'], $atts['price'], $atts['thumbnails'], $query );
 }
 add_shortcode( 'downloads', 'edd_downloads_query' );
 
@@ -686,10 +703,10 @@ function edd_receipt_shortcode( $atts, $content = null ) {
 	$session = edd_get_purchase_session();
 	if ( isset( $_GET['payment_key'] ) ) {
 		$payment_key = urldecode( $_GET['payment_key'] );
-	} elseif ( $edd_receipt_args['payment_key'] ) {
-		$payment_key = $edd_receipt_args['payment_key'];
 	} else if ( $session ) {
 		$payment_key = $session['purchase_key'];
+	} elseif ( $edd_receipt_args['payment_key'] ) {
+		$payment_key = $edd_receipt_args['payment_key'];
 	}
 
 	// No key found
@@ -808,16 +825,16 @@ function edd_process_profile_editor_updates( $data ) {
 	$user_id       = get_current_user_id();
 	$old_user_data = get_userdata( $user_id );
 
-	$display_name = isset( $data['edd_display_name'] ) ? sanitize_text_field( $data['edd_display_name'] ) : $old_user_data->display_name;
-	$first_name   = isset( $data['edd_first_name'] ) ? sanitize_text_field( $data['edd_first_name'] ) : $old_user_data->first_name;
-	$last_name    = isset( $data['edd_last_name'] ) ? sanitize_text_field( $data['edd_last_name'] ) : $old_user_data->last_name;
-	$email        = isset( $data['edd_email'] ) ? sanitize_email( $data['edd_email'] ) : $old_user_data->user_email;
-	$line1        = ( isset( $data['edd_address_line1'] ) ? sanitize_text_field( $data['edd_address_line1'] ) : '' );
-	$line2        = ( isset( $data['edd_address_line2'] ) ? sanitize_text_field( $data['edd_address_line2'] ) : '' );
-	$city         = ( isset( $data['edd_address_city'] ) ? sanitize_text_field( $data['edd_address_city'] ) : '' );
-	$state        = ( isset( $data['edd_address_state'] ) ? sanitize_text_field( $data['edd_address_state'] ) : '' );
-	$zip          = ( isset( $data['edd_address_zip'] ) ? sanitize_text_field( $data['edd_address_zip'] ) : '' );
-	$country      = ( isset( $data['edd_address_country'] ) ? sanitize_text_field( $data['edd_address_country'] ) : '' );
+	$display_name = isset( $data['edd_display_name'] )    ? sanitize_text_field( $data['edd_display_name'] )    : $old_user_data->display_name;
+	$first_name   = isset( $data['edd_first_name'] )      ? sanitize_text_field( $data['edd_first_name'] )      : $old_user_data->first_name;
+	$last_name    = isset( $data['edd_last_name'] )       ? sanitize_text_field( $data['edd_last_name'] )       : $old_user_data->last_name;
+	$email        = isset( $data['edd_email'] )           ? sanitize_email( $data['edd_email'] )                : $old_user_data->user_email;
+	$line1        = isset( $data['edd_address_line1'] )   ? sanitize_text_field( $data['edd_address_line1'] )   : '';
+	$line2        = isset( $data['edd_address_line2'] )   ? sanitize_text_field( $data['edd_address_line2'] )   : '';
+	$city         = isset( $data['edd_address_city'] )    ? sanitize_text_field( $data['edd_address_city'] )    : '';
+	$state        = isset( $data['edd_address_state'] )   ? sanitize_text_field( $data['edd_address_state'] )   : '';
+	$zip          = isset( $data['edd_address_zip'] )     ? sanitize_text_field( $data['edd_address_zip'] )     : '';
+	$country      = isset( $data['edd_address_country'] ) ? sanitize_text_field( $data['edd_address_country'] ) : '';
 
 	$userdata = array(
 		'ID'           => $user_id,
@@ -873,6 +890,16 @@ function edd_process_profile_editor_updates( $data ) {
 	// Update the user
 	$meta    = update_user_meta( $user_id, '_edd_user_address', $address );
 	$updated = wp_update_user( $userdata );
+
+	// Possibly update the customer
+	$customer = new EDD_Customer( $user_id, true );
+	if ( $customer->id > 0 ) {
+		$update_args = array(
+			'name' => $first_name . ' ' . $last_name,
+		);
+
+		$customer->update( $update_args );
+	}
 
 	if ( $updated ) {
 		do_action( 'edd_user_profile_updated', $user_id, $userdata );

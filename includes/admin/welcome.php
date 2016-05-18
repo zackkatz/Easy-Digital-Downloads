@@ -81,6 +81,12 @@ class EDD_Welcome {
 			'edd-credits',
 			array( $this, 'credits_screen' )
 		);
+
+		// Now remove them from the menus so plugins that allow customizing the admin menu don't show them
+		remove_submenu_page( 'index.php', 'edd-about' );
+		remove_submenu_page( 'index.php', 'edd-changelog' );
+		remove_submenu_page( 'index.php', 'edd-getting-started' );
+		remove_submenu_page( 'index.php', 'edd-credits' );
 	}
 
 	/**
@@ -91,31 +97,26 @@ class EDD_Welcome {
 	 * @return void
 	 */
 	public function admin_head() {
-		remove_submenu_page( 'index.php', 'edd-about' );
-		remove_submenu_page( 'index.php', 'edd-changelog' );
-		remove_submenu_page( 'index.php', 'edd-getting-started' );
-		remove_submenu_page( 'index.php', 'edd-credits' );
-
 		?>
 		<style type="text/css" media="screen">
 			/*<![CDATA[*/
-			.about-wrap .edd-badge { float: right; border-radius: 4px; margin: 0 0 15px 15px; max-width: 100px; }
-			.about-wrap #edd-header { margin-bottom: 15px; }
-			.about-wrap #edd-header h1 { margin-bottom: 15px !important; }
-			.about-wrap .about-text { margin: 0 0 15px; max-width: 670px; }
-			.about-wrap .feature-section { margin-top: 20px; }
-			.about-wrap .feature-section-content,
-			.about-wrap .feature-section-media { width: 50%; box-sizing: border-box; }
-			.about-wrap .feature-section-content { float: left; padding-right: 50px; }
-			.about-wrap .feature-section-content h4 { margin: 0 0 1em; }
-			.about-wrap .feature-section-media { float: right; text-align: right; margin-bottom: 20px; }
-			.about-wrap .feature-section-media img { border: 1px solid #ddd; }
-			.about-wrap .feature-section:not(.under-the-hood) .col { margin-top: 0; }
+			.edd-about-wrap .edd-badge { float: right; border-radius: 4px; margin: 0 0 15px 15px; max-width: 100px; }
+			.edd-about-wrap #edd-header { margin-bottom: 15px; }
+			.edd-about-wrap #edd-header h1 { margin-bottom: 15px !important; }
+			.edd-about-wrap .about-text { margin: 0 0 15px; max-width: 670px; }
+			.edd-about-wrap .feature-section { margin-top: 20px; }
+			.edd-about-wrap .feature-section-content,
+			.edd-about-wrap .feature-section-media { width: 50%; box-sizing: border-box; }
+			.edd-about-wrap .feature-section-content { float: left; padding-right: 50px; }
+			.edd-about-wrap .feature-section-content h4 { margin: 0 0 1em; }
+			.edd-about-wrap .feature-section-media { float: right; text-align: right; margin-bottom: 20px; }
+			.edd-about-wrap .feature-section-media img { border: 1px solid #ddd; }
+			.edd-about-wrap .feature-section:not(.under-the-hood) .col { margin-top: 0; }
 			/* responsive */
 			@media all and ( max-width: 782px ) {
-				.about-wrap .feature-section-content,
-				.about-wrap .feature-section-media { float: none; padding-right: 0; width: 100%; text-align: left; }
-				.about-wrap .feature-section-media img { float: none; margin: 0 0 20px; }
+				.edd-about-wrap .feature-section-content,
+				.edd-about-wrap .feature-section-media { float: none; padding-right: 0; width: 100%; text-align: left; }
+				.edd-about-wrap .feature-section-media img { float: none; margin: 0 0 20px; }
 			}
 			/*]]>*/
 		</style>
@@ -152,7 +153,7 @@ class EDD_Welcome {
 	public function tabs() {
 		$selected = isset( $_GET['page'] ) ? $_GET['page'] : 'edd-about';
 		?>
-		<h2 class="nav-tab-wrapper">
+		<h1 class="nav-tab-wrapper">
 			<a class="nav-tab <?php echo $selected == 'edd-about' ? 'nav-tab-active' : ''; ?>" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'edd-about' ), 'index.php' ) ) ); ?>">
 				<?php _e( "What's New", 'easy-digital-downloads' ); ?>
 			</a>
@@ -162,7 +163,7 @@ class EDD_Welcome {
 			<a class="nav-tab <?php echo $selected == 'edd-credits' ? 'nav-tab-active' : ''; ?>" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'edd-credits' ), 'index.php' ) ) ); ?>">
 				<?php _e( 'Credits', 'easy-digital-downloads' ); ?>
 			</a>
-		</h2>
+		</h1>
 		<?php
 	}
 
@@ -175,7 +176,7 @@ class EDD_Welcome {
 	 */
 	public function about_screen() {
 		?>
-		<div class="wrap about-wrap">
+		<div class="wrap about-wrap edd-about-wrap">
 			<?php
 				// load welcome message and content tabs
 				$this->welcome_message();
@@ -285,7 +286,7 @@ class EDD_Welcome {
 	 */
 	public function changelog_screen() {
 		?>
-		<div class="wrap about-wrap">
+		<div class="wrap about-wrap edd-about-wrap">
 			<?php
 				// load welcome message and content tabs
 				$this->welcome_message();
@@ -315,7 +316,7 @@ class EDD_Welcome {
 	 */
 	public function getting_started_screen() {
 		?>
-		<div class="wrap about-wrap">
+		<div class="wrap about-wrap edd-about-wrap">
 			<?php
 				// load welcome message and content tabs
 				$this->welcome_message();
@@ -381,11 +382,11 @@ class EDD_Welcome {
 				<div class="feature-section two-col">
 					<div class="col">
 						<h4><?php _e( 'Phenomenal Support','easy-digital-downloads' );?></h4>
-						<p><?php _e( 'We do our best to provide the best support we can. If you encounter a problem or have a question, simply open a ticket using our <a href="https://easydigitaldownloads.com/support">support form</a>.', 'easy-digital-downloads' );?></p>
+						<p><?php _e( 'We do our best to provide the best support we can. If you encounter a problem or have a question, simply open a ticket using our <a href="https://easydigitaldownloads.com/support/?utm_source=plugin-welcome-page&utm_medium=support-link&utm_term=support&utm_campaign=EDDWelcomeSupport">support form</a>.', 'easy-digital-downloads' );?></p>
 					</div>
 					<div class="col">
 						<h4><?php _e( 'Need Even Faster Support?', 'easy-digital-downloads' );?></h4>
-						<p><?php _e( 'Our <a href="https://easydigitaldownloads.com/support/pricing/">Priority Support</a> system is there for customers that need faster and/or more in-depth assistance.', 'easy-digital-downloads' );?></p>
+						<p><?php _e( 'Our <a href="https://easydigitaldownloads.com/support/pricing/?utm_source=plugin-welcome-page&utm_medium=support-link&utm_term=priority-support&utm_campaign=EDDWelcomeSupport">Priority Support</a> system is there for customers that need faster and/or more in-depth assistance.', 'easy-digital-downloads' );?></p>
 					</div>
 				</div>
 			</div>
@@ -413,7 +414,7 @@ class EDD_Welcome {
 					</div>
 					<div class="col">
 						<h4><?php _e( 'Visit the Extension Store', 'easy-digital-downloads' );?></h4>
-						<p><?php _e( '<a href="https://easydigitaldownloads.com/downloads" target="_blank">The Extensions store</a> has a list of all available extensions, including convenient category filters so you can find exactly what you are looking for.', 'easy-digital-downloads' );?></p>
+						<p><?php _e( '<a href="https://easydigitaldownloads.com/downloads/?utm_source=plugin-welcome-page&utm_medium=extensions-link&utm_term=extensions&utm_campaign=EDDWelcomeExtensions" target="_blank">The Extensions store</a> has a list of all available extensions, including convenient category filters so you can find exactly what you are looking for.', 'easy-digital-downloads' );?></p>
 					</div>
 				</div>
 			</div>
@@ -430,7 +431,7 @@ class EDD_Welcome {
 	 */
 	public function credits_screen() {
 		?>
-		<div class="wrap about-wrap">
+		<div class="wrap about-wrap edd-about-wrap">
 			<?php
 				// load welcome message and content tabs
 				$this->welcome_message();
@@ -489,7 +490,7 @@ class EDD_Welcome {
 
 		foreach ( $contributors as $contributor ) {
 			$contributor_list .= '<li class="wp-person">';
-			$contributor_list .= sprintf( '<a href="%s" title="%s">',
+			$contributor_list .= sprintf( '<a href="%s">',
 				esc_url( 'https://github.com/' . $contributor->login ),
 				esc_html( sprintf( __( 'View %s', 'easy-digital-downloads' ), $contributor->login ) )
 			);
