@@ -199,61 +199,9 @@ add_action( 'init', 'edd_listen_for_paypal_ipn' );
  * @return void
  */
 function edd_process_paypal_ipn() {
-	// Check the request method is POST
-	if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] != 'POST' ) {
-		return;
-	}
 
-	// Set initial post data to empty string
-	$post_data = '';
-
-	// Fallback just in case post_max_size is lower than needed
-	if ( ini_get( 'allow_url_fopen' ) ) {
-		$post_data = file_get_contents( 'php://input' );
-	} else {
-		// If allow_url_fopen is not enabled, then make sure that post_max_size is large enough
-		ini_set( 'post_max_size', '12M' );
-	}
-	// Start the encoded data collection with notification command
-	$encoded_data = 'cmd=_notify-validate';
-
-	// Get current arg separator
-	$arg_separator = edd_get_php_arg_separator_output();
-
-	// Verify there is a post_data
-	if ( $post_data || strlen( $post_data ) > 0 ) {
-		// Append the data
-		$encoded_data .= $arg_separator.$post_data;
-	} else {
-		// Check if POST is empty
-		if ( empty( $_POST ) ) {
-			// Nothing to do
-			return;
-		} else {
-			// Loop through each POST
-			foreach ( $_POST as $key => $value ) {
-				// Encode the value and append the data
-				$encoded_data .= $arg_separator."$key=" . urlencode( $value );
-			}
-		}
-	}
-
-
-
-	// Convert collected post data to an array
-	parse_str( $encoded_data, $encoded_data_array );
-
-	foreach ( $encoded_data_array as $key => $value ) {
-
-		if ( false !== strpos( $key, 'amp;' ) ) {
-			$new_key = str_replace( '&amp;', '&', $key );
-			$new_key = str_replace( 'amp;', '&' , $new_key );
-
-			unset( $encoded_data_array[ $key ] );
-			$encoded_data_array[ $new_key ] = $value;
-		}
-
-	}
+	$encoded_data_array  = array( 'cmd' => '_notify-validate' );
+	$encoded_data_array += wp_unslash( $_POST )
 
 	// Get the PayPal redirect uri
 	$paypal_redirect = edd_get_paypal_redirect( true );
