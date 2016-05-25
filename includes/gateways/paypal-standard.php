@@ -261,33 +261,29 @@ function edd_process_paypal_ipn() {
 	if ( ! edd_get_option( 'disable_paypal_verification' ) ) {
 
 		// Validate the IPN
-
 		$remote_post_vars      = array(
-			'method'           => 'POST',
-			'timeout'          => 45,
-			'redirection'      => 5,
-			'httpversion'      => '1.1',
-			'blocking'         => true,
-			'headers'          => array(
-				'host'         => 'www.paypal.com',
-				'connection'   => 'close',
-				'content-type' => 'application/x-www-form-urlencoded',
-				'post'         => '/cgi-bin/webscr HTTP/1.1',
-
-			),
-			'sslverify'        => false,
-			'body'             => $encoded_data_array
+			'timeout'     => 60,
+			'httpversion' => '1.1',
+			'compress'    => false,
+			'decompress'  => false,
+			'body'        => $encoded_data_array,
+			'user-agent'  => 'EDD/' . EDD_VERSION
 		);
 
 		// Get response
-		$api_response = wp_remote_post( edd_get_paypal_redirect(), $remote_post_vars );
+		$api_response = wp_safe_remote_post( edd_get_paypal_redirect(), $remote_post_vars );
 
 		if ( is_wp_error( $api_response ) ) {
 			edd_record_gateway_error( __( 'IPN Error', 'easy-digital-downloads' ), sprintf( __( 'Invalid IPN verification response. IPN data: %s', 'easy-digital-downloads' ), json_encode( $api_response ) ) );
 			return; // Something went wrong
 		}
 
-		if ( $api_response['body'] !== 'VERIFIED' && edd_get_option( 'disable_paypal_verification', false ) ) {
+		if ( empty( $api_response['response']['code'] ) ||  ( $api_response['response']['code'] >= 200 && $api_response['response']['code'] < 300 ) ) {
+			edd_record_gateway_error( __( 'IPN Error', 'easy-digital-downloads' ), sprintf( __( 'Invalid IPN verification response. IPN data: %s', 'easy-digital-downloads' ), json_encode( $api_response ) ) );
+			return; // Something went wrong
+		}
+
+		if ( empty( $api_response['body'] ) || ( ! strstr( $api_response['body'], 'VERIFIED' ) && edd_get_option( 'disable_paypal_verification', false ) ) ) {
 			edd_record_gateway_error( __( 'IPN Error', 'easy-digital-downloads' ), sprintf( __( 'Invalid IPN verification response. IPN data: %s', 'easy-digital-downloads' ), json_encode( $api_response ) ) );
 			return; // Response not okay
 		}
