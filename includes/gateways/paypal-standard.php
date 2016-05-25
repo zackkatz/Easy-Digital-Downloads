@@ -223,7 +223,7 @@ function edd_process_paypal_ipn() {
 		);
 
 		// Get response
-		$api_response = wp_safe_remote_post( edd_get_paypal_redirect(), $remote_post_vars );
+		$api_response = wp_safe_remote_post( edd_get_paypal_redirect( false ), $remote_post_vars ); // IPN responses must use https url always
 
 		if ( is_wp_error( $api_response ) ) {
 			edd_record_gateway_error( __( 'IPN Error', 'easy-digital-downloads' ), sprintf( __( 'Invalid IPN verification response. IPN data: %s', 'easy-digital-downloads' ), json_encode( $api_response ) ) );
