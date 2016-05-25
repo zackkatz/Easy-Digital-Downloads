@@ -235,7 +235,7 @@ function edd_process_paypal_ipn() {
 			return; // Something went wrong
 		}
 
-		if ( empty( $api_response['body'] ) || ( ! strstr( $api_response['body'], 'VERIFIED' ) && edd_get_option( 'disable_paypal_verification', false ) ) ) {
+		if ( empty( $api_response['body'] ) || ! strstr( $api_response['body'], 'VERIFIED' ) ) {
 			edd_record_gateway_error( __( 'IPN Error', 'easy-digital-downloads' ), sprintf( __( 'Invalid IPN verification response. IPN data: %s', 'easy-digital-downloads' ), json_encode( $api_response ) ) );
 			return; // Response not okay
 		}
