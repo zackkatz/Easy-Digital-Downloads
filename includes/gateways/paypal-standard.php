@@ -199,6 +199,10 @@ add_action( 'init', 'edd_listen_for_paypal_ipn' );
  * @return void
  */
 function edd_process_paypal_ipn() {
+	
+	if ( empty( $_POST ) ) {
+		return;
+	}
 
 	$encoded_data_array  = array( 'cmd' => '_notify-validate' );
 	$encoded_data_array += wp_unslash( $_POST )
