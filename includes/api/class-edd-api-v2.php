@@ -406,9 +406,9 @@ class EDD_API_V2 extends EDD_API_V1 {
 		} elseif ( isset( $wp_query->query_vars['purchasekey'] ) ) {
 			$query   = array();
 			$query[] = edd_get_payment_by( 'key', $wp_query->query_vars['purchasekey'] );
-		} elseif ( ! empty( $args['date'] ) &&  isset( $wp_query->query_vars['startdate'] ) && isset( $wp_query->query_vars['enddate'] ) ) {
-			$start_date = strtotime( $date_range['start'], current_time( 'timestamp' ) );
-			$end_date = strtotime( $date_range['end'], current_time( 'timestamp' ) );
+		} elseif ( ! empty( $args['date'] ) ) {
+			$start_date = strtotime( $args['date']['start'], current_time( 'timestamp' ) );
+			$end_date = strtotime( $args['date']['end'], current_time( 'timestamp' ) );
 			$query = edd_get_payments( array( 'fields' => 'ids', 'start_date' => $start_date, 'end_date' => $end_date, 'number' => $this->per_page(), 'page' => $this->get_paged(), 'status' => 'publish' ) );
 		} elseif ( isset( $wp_query->query_vars['email'] ) ) {
 			$query = edd_get_payments( array( 'fields' => 'ids', 'meta_key' => '_edd_payment_user_email', 'meta_value' => $wp_query->query_vars['email'], 'number' => $this->per_page(), 'page' => $this->get_paged(), 'status' => 'publish' ) );
