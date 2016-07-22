@@ -346,12 +346,12 @@ class EDD_API {
 	}
 
 	/**
-	 * Return whether this is a public query. 
+	 * Return whether this is a public query.
 	 *
 	 * @access private
 	 * @global object $wp_query WordPress Query
 	 * @since 2.6
-	 * @return boolean   
+	 * @return boolean
 	 */
 	private function is_public_query() {
 		global $wp_query;
@@ -602,7 +602,13 @@ class EDD_API {
 
 			case 'sales' :
 
-				$data = $this->routes->get_recent_sales();
+				$args = array(
+					'date'      => isset( $wp_query->query_vars['date'] )      ? $wp_query->query_vars['date']      : null,
+					'startdate' => isset( $wp_query->query_vars['startdate'] ) ? $wp_query->query_vars['startdate'] : null,
+					'enddate'   => isset( $wp_query->query_vars['enddate'] )   ? $wp_query->query_vars['enddate']   : null,
+				);
+
+				$data = $this->routes->get_recent_sales( $args );
 
 				break;
 
