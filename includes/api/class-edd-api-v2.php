@@ -336,22 +336,22 @@ class EDD_API_V2 extends EDD_API_V1 {
 	 * @since  2.6
 	 * @return array
 	 */
-	public function get_recent_sales() {
+	public function get_recent_sales( $args = array() ) {
 		global $wp_query;
 
 		$sales = array();
 
-		if( ! user_can( $this->user_id, 'view_shop_reports' ) && ! $this->override ) {
+		if ( ! user_can( $this->user_id, 'view_shop_reports' ) && ! $this->override ) {
 			return $sales;
 		}
 
-		if( isset( $wp_query->query_vars['id'] ) ) {
+		if ( isset( $wp_query->query_vars['id'] ) ) {
 			$query   = array();
 			$query[] = new EDD_Payment( $wp_query->query_vars['id'] );
-		} elseif( isset( $wp_query->query_vars['purchasekey'] ) ) {
+		} elseif ( isset( $wp_query->query_vars['purchasekey'] ) ) {
 			$query   = array();
 			$query[] = edd_get_payment_by( 'key', $wp_query->query_vars['purchasekey'] );
-		} elseif( isset( $wp_query->query_vars['email'] ) ) {
+		} elseif ( isset( $wp_query->query_vars['email'] ) ) {
 			$query = edd_get_payments( array( 'fields' => 'ids', 'meta_key' => '_edd_payment_user_email', 'meta_value' => $wp_query->query_vars['email'], 'number' => $this->per_page(), 'page' => $this->get_paged(), 'status' => 'publish' ) );
 		} else {
 			$query = edd_get_payments( array( 'fields' => 'ids', 'number' => $this->per_page(), 'page' => $this->get_paged(), 'status' => 'publish' ) );
