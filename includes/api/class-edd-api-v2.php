@@ -340,10 +340,65 @@ class EDD_API_V2 extends EDD_API_V1 {
 		global $wp_query;
 
 		$sales = array();
+		$error = array();
+
+		$paged    = $this->get_paged();
+		$per_page = $this->per_page();
+		$offset   = $per_page * ( $paged - 1 );
+
+		$defaults = array(
+			'date'      => null,
+			'startdate' => null,
+			'enddate'   => null,
+			'number'    => $per_page,
+			'offset'    => $offset,
+		);
+
+		$args = wp_parse_args( $args, $defaults );
 
 		if ( ! user_can( $this->user_id, 'view_shop_reports' ) && ! $this->override ) {
 			return $sales;
 		}
+
+		$dates = $this->get_dates( $args );
+
+		if ( 'range' === $args['date'] ) {
+			if ( ( ! empty( $args['enddate'] ) && ! empty( $args['enddate'] ) ) && $args['enddate'] < $args['startdate'] ) {
+				$error['error'] = __( 'The end date must be later than the start date!', 'easy-digital-downloads' );
+			}
+
+			$date_range = array();
+			if ( ! empty( $args['startdate'] ) ) {
+				$date_range['start'] = $dates['year']     . sprintf('%02d', $dates['m_start'] ) . $dates['day_start'];
+			}
+
+			if ( ! empty( $args['enddate'] ) ) {
+				$date_range['end'] = $dates['year_end'] . sprintf('%02d', $dates['m_end'] )   . $dates['day_end'];
+			}
+
+			$args['date'] = $date_range;
+		} elseif ( ! empty( $args['date'] ) ) {
+			if ( $args['date'] == 'this_quarter' || $args['date'] == 'last_quarter'  ) {
+				$args['date'] = array(
+					'start' => $dates['year'] . sprintf('%02d', $dates['m_start'] ) . '01',
+					'end'   => $dates['year'] . sprintf('%02d', $dates['m_end'] )   . cal_days_in_month( CAL_GREGORIAN, $dates['m_end'], $dates['year'] ),
+				);
+			} else if ( $args['date'] == 'this_month' || $args['date'] == 'last_month' ) {
+				$args['date'] = array(
+					'start' => $dates['year'] . sprintf( '%02d', $dates['m_start'] ) . '01',
+					'end'   => $dates['year'] . sprintf( '%02d', $dates['m_end'] ). cal_days_in_month( CAL_GREGORIAN, $dates['m_end'], $dates['year'] ),
+				);
+			} else if ( $args['date'] == 'this_year' || $args['date'] == 'last_year' ) {
+				$args['date'] = array(
+					'start' => $dates['year'] . '0101',
+					'end'   => $dates['year'] . '1231',
+				);
+			} else {
+				$args['date'] = $dates['year'] . sprintf('%02d', $dates['m_start'] ) . $dates['day'];
+			}
+		}
+
+		unset( $args['startdate'], $args['enddate'] );
 
 		if ( isset( $wp_query->query_vars['id'] ) ) {
 			$query   = array();
