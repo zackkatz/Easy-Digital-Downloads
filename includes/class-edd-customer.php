@@ -90,6 +90,13 @@ class EDD_Customer {
 	public $notes;
 
 	/**
+	 * Customer address
+	 *
+	 * @since  2.7
+	 */
+	public $address;
+
+	/**
 	 * The Database Abstraction
 	 *
 	 * @since  2.3
@@ -148,6 +155,11 @@ class EDD_Customer {
 				case 'notes':
 					$this->$key = $this->get_notes();
 					break;
+
+				case 'address':
+					$this->$key = $this->get_address();
+					break;
+
 
 				default:
 					$this->$key = $value;
@@ -758,6 +770,23 @@ class EDD_Customer {
 		$all_notes = $this->db->get_column( 'notes', $this->id );
 
 		return (string) $all_notes;
+
+	}
+
+
+	/**
+	 * Get the address of the customer
+	 *
+	 * @since  2.7
+	 * @return array The complete address
+	 */
+	private function get_address() {
+
+		$address = array(
+
+		);
+
+		return apply_filters( 'edd_customer_address', $address, $this->id, $this );
 
 	}
 
