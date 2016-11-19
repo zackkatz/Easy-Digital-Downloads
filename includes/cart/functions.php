@@ -440,32 +440,32 @@ function edd_cart_item_price( $item_id = 0, $options = array() ) {
 
 	if ( ! edd_is_free_download( $item_id, $price_id ) && ! edd_download_is_tax_exclusive( $item_id ) ) {
 
-		if( edd_prices_show_tax_on_checkout() && ! edd_prices_include_tax() ) {
+		if( edd_prices_include_tax() ) {
 
-			$price += edd_get_cart_item_tax( $item_id, $options, $price );
-
-		} if( ! edd_prices_show_tax_on_checkout() && edd_prices_include_tax() ) {
-
+			// get the item price but subtract the tax amount
 			$price -= edd_get_cart_item_tax( $item_id, $options, $price );
+			$price = edd_currency_filter( edd_format_amount( $price ) );
+
+		} else {
+
+			// get the item price, which does not include a tax amount
+			$price = edd_currency_filter( edd_format_amount( $price ) );
 
 		}
 
-		if( edd_display_tax_rate() ) {
+		if( edd_prices_show_tax_on_checkout() ) {
 
-			$label = '&nbsp;&ndash;&nbsp;';
-
-			if( edd_prices_show_tax_on_checkout() ) {
-				$label .= sprintf( __( 'includes %s tax', 'easy-digital-downloads' ), edd_get_formatted_tax_rate() );
-			} else {
-				$label .= sprintf( __( 'excludes %s tax', 'easy-digital-downloads' ), edd_get_formatted_tax_rate() );
-			}
-
-			$label = apply_filters( 'edd_cart_item_tax_description', $label, $item_id, $options );
-
+			// display tax information alongside actual item price
+			$label .= '&nbsp;&#43;&nbsp;' . sprintf(__('%s tax', 'easy-digital-downloads'), edd_get_formatted_tax_rate());
 		}
+
+		$label = apply_filters( 'edd_cart_item_tax_description', $label, $item_id, $options );
+
+	} else {
+
+		// get the actual item price
+		$price = edd_currency_filter( edd_format_amount( $price ) );
 	}
-
-	$price = edd_currency_filter( edd_format_amount( $price ) );
 
 	return apply_filters( 'edd_cart_item_price_label', $price . $label, $item_id, $options );
 }
