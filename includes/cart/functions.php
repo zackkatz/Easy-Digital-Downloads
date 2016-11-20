@@ -50,7 +50,7 @@ function edd_get_cart_contents() {
  * @since 1.0
  * @return array $details Cart content details
  */
-function edd_get_cart_content_details() {
+function edd_get_cart_content_details( $unadjusted = false ) {
 
 	global $edd_is_last_cart_item, $edd_flat_discount_total;
 
@@ -87,6 +87,10 @@ function edd_get_cart_content_details() {
 		}
 
 		$tax        = edd_get_cart_item_tax( $item['id'], $item['options'], $subtotal - $discount );
+
+		if( $unadjusted ) {
+			$tax = edd_get_cart_item_tax( $item['id'], $item['options'], $subtotal );
+		}
 
 		if( edd_prices_include_tax() ) {
 			$subtotal -= round( $tax, edd_currency_decimal_filter() );
@@ -674,6 +678,22 @@ function edd_get_cart_subtotal() {
 	$subtotal = edd_get_cart_items_subtotal( $items );
 
 	return apply_filters( 'edd_get_cart_subtotal', $subtotal );
+}
+
+/**
+ * Get Cart Subtotal Unadjusted
+ *
+ * Gets the total price amount in the cart before ALL adjustments
+ *
+ * @since 2.7
+ * @return float Total amount before all cart adjustments
+ */
+function edd_get_cart_subtotal_unadjusted() {
+
+	$items    = edd_get_cart_content_details( true );
+	$subtotal = edd_get_cart_items_subtotal( $items );
+
+	return apply_filters( 'edd_get_cart_subtotal_unadjusted', $subtotal );
 }
 
 /**

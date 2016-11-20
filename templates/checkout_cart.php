@@ -95,15 +95,18 @@ global $post; ?>
 			</tr>
 		<?php endif; ?>
 
-		<?php if( edd_use_taxes() && ! edd_prices_include_tax() ) : ?>
-			<tr class="edd_cart_footer_row edd_cart_subtotal_row"<?php if ( ! edd_is_cart_taxed() ) echo ' style="display:none;"'; ?>>
-				<?php do_action( 'edd_checkout_table_subtotal_first' ); ?>
-				<th colspan="<?php echo edd_checkout_cart_columns(); ?>" class="edd_cart_subtotal">
-					<?php _e( 'Subtotal', 'easy-digital-downloads' ); ?>:&nbsp;<span class="edd_cart_subtotal_amount"><?php echo edd_cart_subtotal(); ?></span>
-				</th>
-				<?php do_action( 'edd_checkout_table_subtotal_last' ); ?>
-			</tr>
-		<?php endif; ?>
+		<?php
+			// get the true cart subtotal before taxes and discounts are applied to items
+			$cart_subtotal = edd_currency_filter( edd_format_amount( edd_get_cart_subtotal_unadjusted() ) );
+		?>
+
+		<tr class="edd_cart_footer_row edd_cart_subtotal_row"<?php if ( ! edd_is_cart_taxed() ) echo ' style="display:none;"'; ?>>
+			<?php do_action( 'edd_checkout_table_subtotal_first' ); ?>
+			<th colspan="<?php echo edd_checkout_cart_columns(); ?>" class="edd_cart_subtotal">
+				<?php _e( 'Subtotal', 'easy-digital-downloads' ); ?>:&nbsp;<span class="edd_cart_subtotal_amount"><?php echo $cart_subtotal; ?></span>
+			</th>
+			<?php do_action( 'edd_checkout_table_subtotal_last' ); ?>
+		</tr>
 
 		<tr class="edd_cart_footer_row edd_cart_discount_row" <?php if( ! edd_cart_has_discounts() )  echo ' style="display:none;"'; ?>>
 			<?php do_action( 'edd_checkout_table_discount_first' ); ?>
@@ -117,7 +120,7 @@ global $post; ?>
 			<tr class="edd_cart_footer_row edd_cart_tax_row"<?php if( ! edd_is_cart_taxed() ) echo ' style="display:none;"'; ?>>
 				<?php do_action( 'edd_checkout_table_tax_first' ); ?>
 				<th colspan="<?php echo edd_checkout_cart_columns(); ?>" class="edd_cart_tax">
-					<?php _e( 'Tax', 'easy-digital-downloads' ); ?>:&nbsp;<span class="edd_cart_tax_amount" data-tax="<?php echo edd_get_cart_tax( false ); ?>"><?php echo esc_html( edd_cart_tax() ); ?></span>
+					<?php _e( 'Tax', 'easy-digital-downloads' ); ?>:&nbsp;<span class="edd_cart_tax_amount" data-tax="<?php echo edd_get_cart_tax( false ); ?>"><?php echo esc_html( edd_cart_tax() ); ?><span class="edd_cart_tax_adjustment" <?php if( ! edd_cart_has_discounts() )  echo ' style="display:none;"'; ?>>(discount adjusted)</span></span>
 				</th>
 				<?php do_action( 'edd_checkout_table_tax_last' ); ?>
 			</tr>

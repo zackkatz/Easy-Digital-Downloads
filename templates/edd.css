@@ -137,6 +137,11 @@
 #edd_checkout_cart .edd_cart_discount_row th {
 	background: none;
 }
+#edd_checkout_cart .edd_cart_tax_adjustment {
+	display: block;
+	font-weight: 400;
+	font-size: .75em;
+}
 #edd_checkout_cart th {
 	font-weight: bold;
 }
