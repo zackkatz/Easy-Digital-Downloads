@@ -61,8 +61,9 @@ global $post; ?>
 			<?php endforeach; ?>
 		<?php endif; ?>
 		<?php do_action( 'edd_cart_items_middle' ); ?>
-		<!-- Show any cart fees, both positive and negative fees -->
-		<?php if( edd_cart_has_fees() ) : ?>
+
+		<!-- Show "item" type fees only as cart items -->
+		<?php if( edd_cart_has_fees( 'item' ) ) : ?>
 			<?php foreach( edd_get_cart_fees() as $fee_id => $fee ) : ?>
 				<tr class="edd_cart_fee" id="edd_cart_fee_<?php echo $fee_id; ?>">
 
@@ -98,6 +99,12 @@ global $post; ?>
 		<?php
 			// get the true cart subtotal before taxes and discounts are applied to items
 			$cart_subtotal = edd_currency_filter( edd_format_amount( edd_get_cart_subtotal_unadjusted() ) );
+
+			if( edd_cart_has_fees( 'item' ) && empty( $cart_items ) ) {
+				// get the fees total, for use when the cart has an "item" type fee - set as subtotal
+				$cart_fees_subtotal = edd_get_cart_fee_total() + edd_get_cart_subtotal_unadjusted();
+				$cart_subtotal = edd_currency_filter( edd_format_amount( $cart_fees_subtotal ) );
+			}
 		?>
 
 		<tr class="edd_cart_footer_row edd_cart_subtotal_row"<?php if ( ! edd_is_cart_taxed() ) echo ' style="display:none;"'; ?>>
@@ -116,11 +123,30 @@ global $post; ?>
 			<?php do_action( 'edd_checkout_table_discount_last' ); ?>
 		</tr>
 
+		<!-- Show "fee" type fees only as cart adjustments -->
+		<?php if( edd_cart_has_fees() && ! empty( $cart_items ) ) : ?>
+
+			<?php foreach( edd_get_cart_fees( 'fee' ) as $fee_id => $fee ) :
+				$fee_amount = esc_html( edd_currency_filter( edd_format_amount( $fee['amount'] ) ) );
+				?>
+
+				<tr class="edd_cart_footer_row edd_cart_fee" id="edd_cart_fee_<?php echo $fee_id; ?>">
+					<?php do_action( 'edd_cart_fee_rows_before', $fee_id, $fee ); ?>
+					<th colspan="<?php echo edd_checkout_cart_columns(); ?> class="edd_cart_fee_amount">
+					<?php echo esc_html( $fee['label'] ); ?>: <span class="edd_cart_fee_amount"><?php echo $fee_amount; ?><span class="edd_cart_tax_adjustment"><?php echo edd_use_taxes() && edd_prices_show_tax_on_checkout() ? sprintf( __( 'plus %s tax', 'easy-digital-downloads' ), edd_get_formatted_tax_rate() ): ''; ?></span></span>
+					</th>
+					<?php do_action( 'edd_cart_fee_rows_after', $fee_id, $fee ); ?>
+				</tr>
+
+			<?php endforeach; ?>
+
+		<?php endif; ?>
+
 		<?php if( edd_use_taxes() ) : ?>
 			<tr class="edd_cart_footer_row edd_cart_tax_row"<?php if( ! edd_is_cart_taxed() ) echo ' style="display:none;"'; ?>>
 				<?php do_action( 'edd_checkout_table_tax_first' ); ?>
 				<th colspan="<?php echo edd_checkout_cart_columns(); ?>" class="edd_cart_tax">
-					<?php _e( 'Tax', 'easy-digital-downloads' ); ?>:&nbsp;<span class="edd_cart_tax_amount" data-tax="<?php echo edd_get_cart_tax( false ); ?>"><?php echo esc_html( edd_cart_tax() ); ?><span class="edd_cart_tax_adjustment" <?php if( ! edd_cart_has_discounts() )  echo ' style="display:none;"'; ?>>(discount adjusted)</span></span>
+					<?php _e( 'Tax', 'easy-digital-downloads' ); ?>:&nbsp;<span class="edd_cart_tax_amount" data-tax="<?php echo edd_get_cart_tax( false ); ?>"><?php echo esc_html( edd_cart_tax() ); ?><span class="edd_cart_tax_adjustment" <?php if( ! edd_cart_has_discounts() )  echo ' style="display:none;"'; ?>><?php _e( 'adjusted by discount(s)', 'easy-digital-downloads' ); ?></span></span>
 				</th>
 				<?php do_action( 'edd_checkout_table_tax_last' ); ?>
 			</tr>

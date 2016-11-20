@@ -460,7 +460,7 @@ function edd_cart_item_price( $item_id = 0, $options = array() ) {
 		if( edd_prices_show_tax_on_checkout() ) {
 
 			// display tax information alongside actual item price
-			$label .= '&nbsp;&#43;&nbsp;' . sprintf(__('%s tax', 'easy-digital-downloads'), edd_get_formatted_tax_rate());
+			$label .= '&nbsp;' . sprintf( __('plus %s tax', 'easy-digital-downloads'), edd_get_formatted_tax_rate() );
 		}
 
 		$label = apply_filters( 'edd_cart_item_tax_description', $label, $item_id, $options );
