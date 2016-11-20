@@ -133,7 +133,7 @@ global $post; ?>
 				<tr class="edd_cart_footer_row edd_cart_fee" id="edd_cart_fee_<?php echo $fee_id; ?>">
 					<?php do_action( 'edd_cart_fee_rows_before', $fee_id, $fee ); ?>
 					<th colspan="<?php echo edd_checkout_cart_columns(); ?> class="edd_cart_fee_amount">
-					<?php echo esc_html( $fee['label'] ); ?>: <span class="edd_cart_fee_amount"><?php echo $fee_amount; ?><span class="edd_cart_tax_adjustment"><?php echo edd_use_taxes() && edd_prices_show_tax_on_checkout() ? sprintf( __( 'plus %s tax', 'easy-digital-downloads' ), edd_get_formatted_tax_rate() ): ''; ?></span></span>
+					<?php echo esc_html( $fee['label'] ); ?>: <span class="edd_cart_fee_amount"><?php echo $fee_amount; ?><span class="edd_cart_tax_adjustment"><?php echo edd_use_taxes() && edd_prices_show_tax_on_checkout() && $fee['amount'] > 0 ? sprintf( __( 'plus %s tax', 'easy-digital-downloads' ), edd_get_formatted_tax_rate() ): ''; ?></span></span>
 					</th>
 					<?php do_action( 'edd_cart_fee_rows_after', $fee_id, $fee ); ?>
 				</tr>
