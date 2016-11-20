@@ -54,11 +54,30 @@ $status    = edd_get_payment_status( $payment, true );
 				<td><?php echo edd_get_gateway_checkout_label( edd_get_payment_gateway( $payment->ID ) ); ?></td>
 			</tr>
 		<?php endif; ?>
+
 		<?php if ( filter_var( $edd_receipt_args['date'], FILTER_VALIDATE_BOOLEAN ) ) : ?>
 		<tr>
 			<td><strong><?php _e( 'Date', 'easy-digital-downloads' ); ?>:</strong></td>
 			<td><?php echo date_i18n( get_option( 'date_format' ), strtotime( $meta['date'] ) ); ?></td>
 		</tr>
+		<?php endif; ?>
+
+		<?php if ( filter_var( $edd_receipt_args['price'], FILTER_VALIDATE_BOOLEAN ) ) : ?>
+
+			<tr>
+				<td><strong><?php _e( 'Subtotal', 'easy-digital-downloads' ); ?></strong></td>
+				<td>
+					<?php echo edd_payment_subtotal( $payment->ID ); ?>
+				</td>
+			</tr>
+
+		<?php endif; ?>
+
+		<?php if ( filter_var( $edd_receipt_args['discount'], FILTER_VALIDATE_BOOLEAN ) && isset( $user['discount'] ) && $user['discount'] != 'none' ) : ?>
+			<tr>
+				<td><strong><?php _e( 'Discount(s)', 'easy-digital-downloads' ); ?>:</strong></td>
+				<td><?php echo $user['discount']; ?></td>
+			</tr>
 		<?php endif; ?>
 
 		<?php if ( ( $fees = edd_get_payment_fees( $payment->ID, 'fee' ) ) ) : ?>
@@ -78,13 +97,6 @@ $status    = edd_get_payment_status( $payment, true );
 		</tr>
 		<?php endif; ?>
 
-		<?php if ( filter_var( $edd_receipt_args['discount'], FILTER_VALIDATE_BOOLEAN ) && isset( $user['discount'] ) && $user['discount'] != 'none' ) : ?>
-			<tr>
-				<td><strong><?php _e( 'Discount(s)', 'easy-digital-downloads' ); ?>:</strong></td>
-				<td><?php echo $user['discount']; ?></td>
-			</tr>
-		<?php endif; ?>
-
 		<?php if( edd_use_taxes() ) : ?>
 			<tr>
 				<td><strong><?php _e( 'Tax', 'easy-digital-downloads' ); ?></strong></td>
@@ -93,13 +105,6 @@ $status    = edd_get_payment_status( $payment, true );
 		<?php endif; ?>
 
 		<?php if ( filter_var( $edd_receipt_args['price'], FILTER_VALIDATE_BOOLEAN ) ) : ?>
-
-			<tr>
-				<td><strong><?php _e( 'Subtotal', 'easy-digital-downloads' ); ?></strong></td>
-				<td>
-					<?php echo edd_payment_subtotal( $payment->ID ); ?>
-				</td>
-			</tr>
 
 			<tr>
 				<td><strong><?php _e( 'Total Price', 'easy-digital-downloads' ); ?>:</strong></td>
