@@ -12,6 +12,10 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+function edd_is_cloud_files_enabled() {
+	return true;
+}
+
 
 /**
  * Change Downloads Upload Directory
@@ -28,6 +32,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function edd_change_downloads_upload_dir() {
 	global $pagenow;
+
+	if( edd_is_cloud_files_enabled() ) {
+		return;
+	}	
 
 	if ( ! empty( $_REQUEST['post_id'] ) && ( 'async-upload.php' == $pagenow || 'media-upload.php' == $pagenow ) ) {
 		if ( 'download' == get_post_type( $_REQUEST['post_id'] ) ) {

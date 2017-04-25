@@ -130,6 +130,14 @@ final class Easy_Digital_Downloads {
 	public $cart;
 
 	/**
+	 * EDD Cloud Files Object
+	 *
+	 * @var object|EDD_Cloud_Files
+	 * @since 2.8
+	 */
+	public $cloud_files;
+
+	/**
 	 * Main Easy_Digital_Downloads Instance.
 	 *
 	 * Insures that only one instance of Easy_Digital_Downloads exists in memory at any one
@@ -163,6 +171,7 @@ final class Easy_Digital_Downloads {
 			self::$instance->customer_meta = new EDD_DB_Customer_Meta();
 			self::$instance->payment_stats = new EDD_Payment_Stats();
 			self::$instance->cart          = new EDD_Cart();
+			self::$instance->cloud_files   = new EDD_Cloud_Files();
 		}
 
 		return self::$instance;
@@ -348,6 +357,7 @@ final class Easy_Digital_Downloads {
 			require_once EDD_PLUGIN_DIR . 'includes/admin/upgrades/upgrades.php';
 			require_once EDD_PLUGIN_DIR . 'includes/admin/class-edd-heartbeat.php';
 			require_once EDD_PLUGIN_DIR . 'includes/admin/tools/tools-actions.php';
+			require_once EDD_PLUGIN_DIR . 'includes/admin/tools/class-edd-cloud-files.php';
 		} else {
 			require_once EDD_PLUGIN_DIR . 'includes/process-download.php';
 			require_once EDD_PLUGIN_DIR . 'includes/theme-compatibility.php';
