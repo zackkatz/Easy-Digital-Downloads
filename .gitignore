@@ -29,6 +29,7 @@ tests/clover.xml
 
 # Grunt
 node_modules
+package-lock.json
 
 # Vendor
 vendor
